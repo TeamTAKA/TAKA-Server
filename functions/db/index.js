@@ -1,5 +1,5 @@
 module.exports = {
   //userDB: require('./user'),
-  cardDB: require('./card'),
+  ticketDB: require('./ticket'),
   // relationDB: require('./'),
 };

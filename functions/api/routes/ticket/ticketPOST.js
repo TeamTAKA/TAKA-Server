@@ -3,19 +3,19 @@ const util = require('../../../lib/util');
 const statusCode = require('../../../constants/statusCode');
 const responseMessage = require('../../../constants/responseMessage');
 const db = require('../../../db/db');
-const { cardDB } = require('../../../db');
+const { ticketDB } = require('../../../db');
 
 module.exports = async (req, res) => {
-  const { userId, title, content } = req.body;
+  const { userId, title_kor, title_eng, date, time, hall, seat, cast, seller, review } = req.body;
   const imageUrls = req.imageUrls;
 
   let client;
 
   try {
     client = await db.connect(req);
-    const card = await cardDB.addCard(client, userId, title, content, imageUrls);
+    const ticket = await ticketDB.addticket(client, userId, title_kor, title_eng, date, time, hall, seat, cast, seller, review, imageUrls);
 
-    res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.ADD_ONE_POST_SUCCESS, card));
+    res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.ADD_ONE_POST_SUCCESS, ticket.ticketId));
   } catch (error) {
     functions.logger.error(`[ERROR] [${req.method.toUpperCase()}] ${req.originalUrl}`, `[CONTENT] ${error}`);
     console.log(error);
