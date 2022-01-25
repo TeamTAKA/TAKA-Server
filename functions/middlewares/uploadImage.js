@@ -16,7 +16,7 @@ const uploadImage = (req, res, next) => {
   let imageFileName = {};
   let imagesToUpload = [];
   let imageToAdd = {};
-  let imageUrls = [];
+  let imageUrls = '';
 
   let fields = {};
 
@@ -44,7 +44,7 @@ const uploadImage = (req, res, next) => {
   busboy.on('finish', async () => {
     let promises = [];
     imagesToUpload.forEach((imageToBeUploaded) => {
-      imageUrls.push(`https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${imageToBeUploaded.imageFileName}?alt=media`);
+      imageUrls = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${imageToBeUploaded.imageFileName}?alt=media`;
       promises.push(
         admin
           .storage()

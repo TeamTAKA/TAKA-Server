@@ -8,7 +8,6 @@ const { cardDB } = require('../../../db');
 module.exports = async (req, res) => {
   const { userId, title, content } = req.body;
   const imageUrls = req.imageUrls;
-  //console.log(userId, title, content);
 
   let client;
 
