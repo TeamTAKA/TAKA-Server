@@ -6,16 +6,18 @@ const db = require('../../../db/db');
 const { ticketDB } = require('../../../db');
 
 module.exports = async (req, res) => {
-  const { userId, titleKor, titleEng, date, time, hall, seat, cast, seller, review } = req.body;
-  const imageUrls = req.imageUrls;
+  const { ticketId } = req.params;
+
+  if (!ticketId) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
 
   let client;
 
   try {
     client = await db.connect(req);
-    const ticket = await ticketDB.addTicket(client, userId, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls);
+    const deleteTicket = await ticketDB.deletePost(client, ticketId);
+    if (!deleteTicket) return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_TICKET));
 
-    res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.ADD_ONE_TICKET_SUCCESS, ticket.ticketId));
+    res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.DELETE_ONE_TICKET_SUCCESS, deleteTicket));
   } catch (error) {
     functions.logger.error(`[ERROR] [${req.method.toUpperCase()}] ${req.originalUrl}`, `[CONTENT] ${error}`);
     console.log(error);
