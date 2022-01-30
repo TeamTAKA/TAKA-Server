@@ -1,32 +1,33 @@
 const _ = require('lodash');
 const convertSnakeToCamel = require('../lib/convertSnakeToCamel');
 
-const getAllTicketsByUserId = async (client, userId) => {
-  if (userId.length < 1) return [];
+//정렬 방식 고려해 수정 필요
+const getAllTicketsByticketIdx = async (client, ticketIdx) => {
+  if (ticketIdx.length < 1) return [];
   const { rows } = await client.query(
     `
     SELECT * FROM ticket t
     WHERE id = $1
       AND is_deleted = FALSE
     `,
-    [userId],
+    [ticketIdx],
   );
   return convertSnakeToCamel.keysToCamel(rows);
 };
 
-const getTicketById = async (client, ticketId) => {
+const getTicketById = async (client, ticketIdx) => {
   const { rows } = await client.query(
     `
     SELECT * FROM ticket t
     WHERE id = $1
       AND is_deleted = FALSE
     `,
-    [ticketId],
+    [ticketIdx],
   );
   return convertSnakeToCamel.keysToCamel(rows[0]);
 };
 
-const addTicket = async (client, userId, title_kor, title_eng, date, time, hall, seat, cast, seller, review, imageUrls) => {
+const addTicket = async (client, ticketIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls) => {
   const { rows } = await client.query(
     `
     INSERT INTO ticket
@@ -35,19 +36,19 @@ const addTicket = async (client, userId, title_kor, title_eng, date, time, hall,
     ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     RETURNING *
     `,
-    [userId, title_kor, title_eng, date, time, hall, seat, cast, seller, review, imageUrls],
+    [ticketIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls],
   );
   return convertSnakeToCamel.keysToCamel(rows[0]);
 };
 
-const updateTicket = async (client, ticketId, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls) => {
+const updateTicket = async (client, ticketIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls) => {
   const { rows: existingRows } = await client.query(
     `
     SELECT * FROM ticket t
     WHERE id = $1
        AND is_deleted = FALSE
     `,
-    [ticketId],
+    [ticketIdx],
   );
 
   if (existingRows.length === 0) return false;
@@ -61,12 +62,12 @@ const updateTicket = async (client, ticketId, titleKor, titleEng, date, time, ha
     WHERE id = $11
     RETURNING * 
     `,
-    [data.titleKor, data.titleEng, data.date, data.time, data.hall, data.seat, data.cast, data.seller, data.review, data.imageUrls, ticketId],
+    [data.titleKor, data.titleEng, data.date, data.time, data.hall, data.seat, data.cast, data.seller, data.review, data.imageUrls, ticketIdx],
   );
   return convertSnakeToCamel.keysToCamel(rows[0]);
 };
 
-const deleteTicket = async (client, ticketId) => {
+const deleteTicket = async (client, ticketIdx) => {
   const { rows } = await client.query(
     `
     UPDATE ticket t
@@ -74,14 +75,14 @@ const deleteTicket = async (client, ticketId) => {
     WHERE id = $1
     RETURNING *
     `,
-    [ticketId],
+    [ticketIdx],
   );
 
   return convertSnakeToCamel.keysToCamel(rows[0]);
 };
 
 module.exports = {
-  getAllTicketsByUserId,
+  getAllTicketsByticketIdx,
   getTicketById,
   addTicket,
   updateTicket,

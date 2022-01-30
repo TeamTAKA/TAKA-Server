@@ -6,18 +6,18 @@ const db = require('../../../db/db');
 const { ticketDB } = require('../../../db');
 
 module.exports = async (req, res) => {
-  const { ticketIdx } = req.params;
-
-  if (!ticketIdx) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+  const { userIdx } = req.params;
+  if (!userIdx) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
 
   let client;
 
   try {
     client = await db.connect(req);
-    const deleteTicket = await ticketDB.deletePost(client, ticketIdx);
-    if (!deleteTicket) return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_TICKET));
 
-    res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.DELETE_ONE_TICKET_SUCCESS, deleteTicket));
+    const tickets = await ticketDB.getAllTicketsByuserIdx(client, userIdx);
+    //if (!tickets) return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_TICKET)); 없을 수 있음.
+
+    res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.READ_ALL_TICKETS_SUCCESS, tickets));
   } catch (error) {
     functions.logger.error(`[ERROR] [${req.method.toUpperCase()}] ${req.originalUrl}`, `[CONTENT] ${error}`);
     console.log(error);

@@ -6,14 +6,14 @@ const db = require('../../../db/db');
 const { ticketDB } = require('../../../db');
 
 module.exports = async (req, res) => {
-  const { userId, titleKor, titleEng, date, time, hall, seat, cast, seller, review } = req.body;
+  const { userIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review } = req.body;
   const imageUrls = req.imageUrls;
 
   let client;
 
   try {
     client = await db.connect(req);
-    const ticket = await ticketDB.addTicket(client, userId, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls);
+    const ticket = await ticketDB.addTicket(client, userIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls);
 
     res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.ADD_ONE_TICKET_SUCCESS, ticket.ticketId));
   } catch (error) {

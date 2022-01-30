@@ -6,17 +6,17 @@ const db = require('../../../db/db');
 const { ticketDB } = require('../../../db');
 
 module.exports = async (req, res) => {
-  const { ticketId } = req.params;
+  const { ticketIdx } = req.params;
   const { titleKor, titleEng, date, time, hall, seat, cast, seller, review } = req.body;
   const imageUrls = req.imageUrls;
 
-  if (!ticketId) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+  if (!ticketIdx) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
 
   let client;
 
   try {
     client = await db.connect(req);
-    const updateTicket = await ticketDB.updatePost(client, ticketId, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls);
+    const updateTicket = await ticketDB.updatePost(client, ticketIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls);
     if (!updateTicket) return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_TICKET));
 
     res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.UPDATE_ONE_TICKET_SUCCESS, updateTicket));

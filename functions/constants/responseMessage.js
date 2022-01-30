@@ -19,7 +19,7 @@ module.exports = {
 
   // 유저
   READ_ONE_USER_SUCCESS: '유저 조회 성공',
-  READ_ALL_USERS_SUCCESS: '모든 유저 조회 성공',
+  READ_ALL_USERS_SUCCESS: '전체 유저 조회 성공',
   UPDATE_ONE_USER_SUCCESS: '유저 수정 성공',
   DELETE_ONE_USER_SUCCESS: '유저 삭제 성공',
 
@@ -28,7 +28,7 @@ module.exports = {
   UPDATE_ONE_TICKET_SUCCESS: '티켓 수정 성공',
   DELETE_ONE_TICKET_SUCCESS: '티켓 삭제 성공',
   READ_ONE_TICKET_SUCCESS: '티켓 조회 성공',
-  READ_ALL_TICKETS_SUCCESS: '모든 티켓 조회 성공',
+  READ_ALL_TICKETS_SUCCESS: '전체 티켓 조회 성공',
   NO_TICKET: '존재하지 않는 포스트입니다.',
 
   // 서버 내 오류
