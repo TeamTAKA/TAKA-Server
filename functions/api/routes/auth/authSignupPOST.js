@@ -1,6 +1,7 @@
 const util = require('../../lib/util');
 const responseMessage = require('../../constants/responseMessage');
 const statusCode = require('../../constants/statusCode');
+const db = require('../../../db/db');
 const { userDB } = require('../../db');
 //const jwtHandlers = require('../../lib/jwtHandlers');
 
@@ -20,7 +21,7 @@ module.exports = async (req, res) => {
   try {
     client = await db.connect(req);
 
-    const user = await userDB.postUserBySignup(id, password);
+    const user = await userDB.createUser(id, password);
     const { accesstoken } = jwtHandlers.sign(user[0]);
 
     return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.CREATED_USER, accesstoken));

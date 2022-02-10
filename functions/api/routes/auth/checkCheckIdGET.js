@@ -1,6 +1,7 @@
 const util = require('../../../lib/util');
 const statusCode = require('../../../constants/statusCode');
 const responseMessage = require('../../../constants/responseMessage');
+const db = require('../../../db/db');
 const { userDB } = require('../../../db');
 
 module.exports = async (req, res) => {
@@ -14,7 +15,7 @@ module.exports = async (req, res) => {
 
   try {
     client = await db.connect(req);
-    const alreadyUser = await userDB.checkId(id);
+    const alreadyUser = await getUserById.checkId(client, id);
 
     // 해당 email을 가진 유저가 이미 있을 때
     if (alreadyUser) {

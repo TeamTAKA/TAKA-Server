@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
 
   try {
     client = await db.connect(req);
-    const updateTicket = await ticketDB.updatePost(client, ticketIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls);
+    const updateTicket = await ticketDB.updateTicket(client, ticketIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls);
     if (!updateTicket) return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_TICKET));
 
     res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.UPDATE_ONE_TICKET_SUCCESS, updateTicket));

@@ -30,7 +30,7 @@ module.exports = {
   DELETE_ONE_TICKET_SUCCESS: '티켓 삭제 성공',
   READ_ONE_TICKET_SUCCESS: '티켓 조회 성공',
   READ_ALL_TICKETS_SUCCESS: '전체 티켓 조회 성공',
-  NO_TICKET: '존재하지 않는 포스트입니다.',
+  NO_TICKET: '존재하지 않는 티켓입니다.',
 
   // 서버 내 오류
   INTERNAL_SERVER_ERROR: '서버 내 오류',

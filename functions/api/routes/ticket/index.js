@@ -5,8 +5,9 @@ const uploadImage = require('../../../middlewares/uploadImage');
 
 router.post('/', uploadImage, require('./ticketPOST'));
 router.get('/list/:userIdx', require('./ticketListGET'));
+router.get('/listGroup/:userIdx', require('./ticketListGroupGET'));
 router.get('/:ticketIdx', require('./ticketGET'));
-router.put('/:ticketIdx', require('./ticketPUT'));
+router.put('/:ticketIdx', uploadImage, require('./ticketPUT'));
 router.delete('/:ticketIdx', require('./ticketDELETE'));
 
 module.exports = router;
