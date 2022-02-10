@@ -1,22 +1,28 @@
-const functions = require('firebase-functions');
 const util = require('../../../lib/util');
 const statusCode = require('../../../constants/statusCode');
 const responseMessage = require('../../../constants/responseMessage');
 const db = require('../../../db/db');
-const { ticketDB } = require('../../../db');
+const { userDB } = require('../../../db');
 
 module.exports = async (req, res) => {
-  const { userIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review } = req.body;
-  const imageUrls = req.imageUrls;
-  if (!userIdx) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+  }
 
   let client;
 
   try {
     client = await db.connect(req);
-    const ticket = await ticketDB.addTicket(client, userIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls);
+    const alreadyUser = await getUserById.checkId(client, id);
 
-    res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.ADD_ONE_TICKET_SUCCESS, ticket.ticketIdx));
+    // 해당 email을 가진 유저가 이미 있을 때
+    if (alreadyUser) {
+      return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.ALREADY_ID));
+    }
+
+    res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.ALLOWED_ID));
   } catch (error) {
     functions.logger.error(`[ERROR] [${req.method.toUpperCase()}] ${req.originalUrl}`, `[CONTENT] ${error}`);
     console.log(error);
