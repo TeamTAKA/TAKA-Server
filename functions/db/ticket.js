@@ -68,32 +68,89 @@ const deleteTicket = async (client, ticketIdx) => {
 };
 
 const getAllTicketsByuserIdx = async (client, userIdx) => {
-  if (userIdx.length < 1) return [];
   const { rows } = await client.query(
     `
     SELECT * FROM ticket t
     WHERE user_idx = $1
       AND is_deleted = FALSE
+      ORDER BY ticket_idx
     `,
     [userIdx],
   );
+
+  if (rows.length < 1) return [];
+
   return convertSnakeToCamel.keysToCamel(rows);
 };
 
 const getAllTicketGroupsByuserIdx = async (client, userIdx) => {
-  if (userIdx.length < 1) return [];
-  const { rows } = await client.query(
+  const { rows: existingRows } = await client.query(
     `
     SELECT * FROM ticket t
     WHERE user_idx = $1
       AND is_deleted = FALSE
+    ORDER BY play_title_kor
     `,
     [userIdx],
   );
 
-  //rows를 극별로 그룹핑하는 과정 필요
+  if (existingRows.length < 1) return [];
 
-  return convertSnakeToCamel.keysToCamel(rows);
+  //rows를 극별로 그룹핑
+
+  /*
+    "data": [
+        {
+            "playTitleKor": "키다리아저씨",
+            "playTitleEng": "Eng"
+            "ticletList" : [
+              {
+                "ticketIdx": 4,
+                "playDate": "02/10",
+                "playTime": "20:00",
+                "playHall": "백암아트홀",
+                "playSeat": "C열",
+                "playCast": "유리아, 최고",
+                "playSeller": "예스24",
+                "playReview": "리뷰 하나",
+                "playImage": "https://firebasestorage.googleapis.com/v0/b/taka-1dd38.appspot.com/o/20220210_125359_343173900761.PNG?alt=media",
+              },
+                            {
+                "ticketIdx": 5,
+                "playDate": "02/18",
+                "playTime": "14:30",
+                "playHall": "백암아트",
+                "playSeat": "좌석",
+                "playCast": "배우, 배우",
+                "playSeller": "예스24",
+                "playReview": "리뷰 둘",
+                "playImage": "https://firebasestorage.googleapis.com/v0/b/taka-1dd38.appspot.com/o/20220210_125359_343173900761.PNG?alt=media",
+              }
+            ]
+        },
+        {
+            "playTitleKor": "해적",
+            "playTitleEng": "Eng",
+            "ticletList" : [
+              {
+                "ticketIdx": 6,
+                "playDate": "03/11",
+                "playTime": "20:00",
+                "playHall": "드림아트센터",
+                "playSeat": "C열",
+                "playCast": "임찬민, 랑연",
+                "playSeller": "예스24",
+                "playReview": "리뷰 셋",
+                "playImage": "https://firebasestorage.googleapis.com/v0/b/taka-1dd38.appspot.com/o/20220210_125359_343173900761.PNG?alt=media",
+              },
+            ]
+        }
+    ]
+  */
+
+  //다시 작성 필요
+
+  return convertSnakeToCamel.keysToCamel(array);
 };
 
 module.exports = {
