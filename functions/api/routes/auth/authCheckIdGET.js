@@ -1,3 +1,4 @@
+const functions = require('firebase-functions');
 const util = require('../../../lib/util');
 const statusCode = require('../../../constants/statusCode');
 const responseMessage = require('../../../constants/responseMessage');
@@ -15,11 +16,11 @@ module.exports = async (req, res) => {
 
   try {
     client = await db.connect(req);
-    const alreadyUser = await getUserById.checkId(client, id);
 
+    const alreadyUser = await userDB.getUserById(client, id);
     // 해당 email을 가진 유저가 이미 있을 때
-    if (alreadyUser) {
-      return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.ALREADY_ID));
+    if (alreadyUser.length) {
+      return res.status(statusCode.CANNOT_JOIN).send(util.fail(statusCode.CANNOT_JOIN, responseMessage.ALREADY_ID));
     }
 
     res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.ALLOWED_ID));
