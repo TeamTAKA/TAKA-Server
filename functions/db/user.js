@@ -1,32 +1,46 @@
 const _ = require('lodash');
 const convertSnakeToCamel = require('../lib/convertSnakeToCamel');
 
-const getUserById = async (client, userId) => {
+const getUserById = async (client, id) => {
   const { rows } = await client.query(
     `
         SELECT *
-        FROM "user" u
+        FROM users u
         WHERE u.id = $1
             AND u.is_deleted = FALSE
-        `,
-    [userId],
+    `,
+    [id],
   );
   return convertSnakeToCamel.keysToCamel(rows);
 };
 
-const createUser = async (client, id, password) => {
+const createUser = async (client, id, hashed, salt) => {
   const { rows } = await client.query(
     `
-      INSERT INTO "user"
-      (id, password)
+      INSERT INTO users
+      (id, hashed, salt)
       VALUES
-      ($1, $2)
-      RETURNING id, password
-          `,
-    [id, password],
+      ($1, $2, $3)
+      RETURNING user_idx
+    `,
+    [id, hashed, salt],
   );
-  console.log(rows);
-  return convertSnakeToCamel.keysToCamel(rows);
+  return convertSnakeToCamel.keysToCamel(rows[0]);
 };
 
-module.exports = { createUser, getUserById };
+const logIn = async (client, id, hashed, salt) => {
+  const { rows } = await client.query(
+    `
+    SELECT *
+    FROM users u
+    WHERE u.id = $1
+      AND u.hashed = $2
+      AND u.salt = $3
+      AND u.is_deleted = FALSE
+    `,
+    [id, hashed, salt],
+  );
+  return convertSnakeToCamel.keysToCamel(rows[0]);
+};
+
+module.exports = { createUser, getUserById, logIn };

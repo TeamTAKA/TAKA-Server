@@ -1,6 +1,7 @@
 module.exports = {
   OK: 200,
   CREATED: 201,
+  CANNOT_JOIN: 202,
   NO_CONTENT: 204,
   RESET_CONTENT: 205,
   NOT_MODIFIED: 304,

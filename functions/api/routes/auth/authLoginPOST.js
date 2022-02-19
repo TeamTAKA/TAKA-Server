@@ -1,8 +1,10 @@
+const functions = require('firebase-functions');
 const util = require('../../../lib/util');
 const statusCode = require('../../../constants/statusCode');
 const responseMessage = require('../../../constants/responseMessage');
 const db = require('../../../db/db');
 const { userDB } = require('../../../db');
+const encrypt = require('../../../lib/crypto');
 //const jwtHandlers = require('../../lib/jwtHandlers');
 
 module.exports = async (req, res) => {
@@ -16,12 +18,19 @@ module.exports = async (req, res) => {
 
   try {
     client = await db.connect(req);
-    const user = await userDB.getUserById(client, id);
+    const userForThisID = await userDB.getUserById(client, id);
 
-    if (user.length !== 0) {
-      const { id, password } = user[0];
+    if (userForThisID.length) {
+      const salt = userForThisID[0].salt;
+      const hashed = await encrypt.encryptWithSalt(password, salt);
+      const user = await userDB.logIn(client, id, hashed, salt);
+      if (!user) {
+        return res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, responseMessage.MISS_MATCH_PW));
+      }
+
+      //const { id, password } = user[0];
       //const { accesstoken } = jwtHandlers.sign({ id, password });
-      return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, accesstoken));
+      return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS));
     } else {
       return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_USER));
     }
