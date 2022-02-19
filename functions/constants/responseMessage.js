@@ -42,7 +42,4 @@ module.exports = {
 
   // 인증
   NO_AUTH_HEADER: 'Authorization 헤더가 없습니다.',
-
-  /* 서버에러 */
-  INTERNAL_SERVER_ERROR: '서버 내부 오류',
 };
