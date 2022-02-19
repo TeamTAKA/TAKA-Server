@@ -18,19 +18,34 @@ const addTicket = async (client, userIdx, titleKor, titleEng, date, time, hall, 
 const getTicketById = async (client, ticketIdx) => {
   const { rows } = await client.query(
     `
-    SELECT play_title_kor, play_title_eng, play_date, play_time, play_hall, play_seat, play_cast, play_seller, play_review, play_image FROM ticket t
+    SELECT play_title_kor, play_title_eng, play_date, play_time, play_hall, play_seat, play_cast, play_seller, play_review, play_image FROM ticket
     WHERE ticket_idx = $1
       AND is_deleted = FALSE
     `,
     [ticketIdx],
   );
-  return convertSnakeToCamel.keysToCamel(rows[0]);
+
+  const nameOfPlay = rows[0].play_title_kor;
+
+  const { rows: count } = await client.query(
+    `
+    SELECT * FROM ticket
+    WHERE play_title_kor = $1
+      AND is_deleted = FALSE
+    `,
+    [nameOfPlay],
+  );
+
+  let result = rows[0];
+  result.playCount = count.length;
+
+  return convertSnakeToCamel.keysToCamel(result);
 };
 
 const updateTicket = async (client, ticketIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls) => {
   const { rows: existingRows } = await client.query(
     `
-    SELECT * FROM ticket t
+    SELECT * FROM ticket
     WHERE ticket_idx = $1
        AND is_deleted = FALSE
     `,
@@ -43,7 +58,7 @@ const updateTicket = async (client, ticketIdx, titleKor, titleEng, date, time, h
 
   const { rows } = await client.query(
     `
-    UPDATE ticket t
+    UPDATE ticket
     SET play_title_kor = $1, play_title_eng = $2, play_date = $3, play_time = $4, play_hall = $5, play_seat = $6, play_cast = $7, play_seller = $8, play_review = $9, play_image = $10, updated_at = now()
     WHERE ticket_idx = $11
     RETURNING play_title_kor, play_title_eng, play_date, play_time, play_hall, play_seat, play_cast, play_seller, play_review, play_image
@@ -56,7 +71,7 @@ const updateTicket = async (client, ticketIdx, titleKor, titleEng, date, time, h
 const deleteTicket = async (client, ticketIdx) => {
   const { rows } = await client.query(
     `
-    UPDATE ticket t
+    UPDATE ticket
     SET is_deleted = TRUE, updated_at = now()
     WHERE ticket_idx = $1
     RETURNING *
@@ -70,7 +85,7 @@ const deleteTicket = async (client, ticketIdx) => {
 const getAllTicketsByuserIdx = async (client, userIdx) => {
   const { rows } = await client.query(
     `
-    SELECT play_image, play_title_eng, play_title_kor, play_date FROM ticket t
+    SELECT play_image, play_title_eng, play_title_kor, play_date FROM ticket
     WHERE user_idx = $1
       AND is_deleted = FALSE
       ORDER BY ticket_idx
@@ -86,7 +101,7 @@ const getAllTicketsByuserIdx = async (client, userIdx) => {
 const getAllTicketGroupsByuserIdx = async (client, userIdx) => {
   const { rows: existingRows } = await client.query(
     `
-    SELECT ticket_idx, play_image, play_title_kor, play_date FROM ticket t
+    SELECT ticket_idx, play_image, play_title_kor, play_date FROM ticket
     WHERE user_idx = $1
       AND is_deleted = FALSE
     ORDER BY play_title_kor
@@ -129,6 +144,19 @@ const getAllTicketGroupsByuserIdx = async (client, userIdx) => {
   if (!checkNameOfPlay.includes()) return convertSnakeToCamel.keysToCamel(resultArray);
 };
 
+const searchTicketByKeyword = async (client, keyword) => {
+  const { rows } = await client.query(
+    `
+    SELECT ticket_idx, play_date, play_image FROM ticket
+    WHERE play_title_kor = $1 OR play_cast LIKE $2
+      AND is_deleted = FALSE
+    `,
+    [keyword, '%' + keyword + '%'],
+  );
+
+  return convertSnakeToCamel.keysToCamel(rows);
+};
+
 module.exports = {
   getAllTicketsByuserIdx,
   getAllTicketGroupsByuserIdx,
@@ -136,4 +164,5 @@ module.exports = {
   addTicket,
   updateTicket,
   deleteTicket,
+  searchTicketByKeyword,
 };
