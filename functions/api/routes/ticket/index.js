@@ -9,5 +9,6 @@ router.get('/listGroup/:userIdx', require('./ticketListGroupGET'));
 router.get('/:ticketIdx', require('./ticketGET'));
 router.put('/:ticketIdx', uploadImage, require('./ticketPUT'));
 router.delete('/:ticketIdx', require('./ticketDELETE'));
+router.post('/search', require('./searchTicketGET'));
 
 module.exports = router;

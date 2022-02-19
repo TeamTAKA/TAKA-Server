@@ -6,18 +6,16 @@ const db = require('../../../db/db');
 const { ticketDB } = require('../../../db');
 
 module.exports = async (req, res) => {
-  const { ticketIdx } = req.params;
-  if (!ticketIdx) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+  const { keyword } = req.body;
+  if (!keyword) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
 
   let client;
 
   try {
     client = await db.connect(req);
 
-    const ticket = await ticketDB.getTicketById(client, ticketIdx);
-    if (!ticket) return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_TICKET));
-
-    res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.READ_ONE_TICKET_SUCCESS, ticket));
+    const ticket = await ticketDB.searchTicketByKeyword(client, keyword);
+    res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.SEARCH_TICKETS_SUCCESS, ticket));
   } catch (error) {
     functions.logger.error(`[ERROR] [${req.method.toUpperCase()}] ${req.originalUrl}`, `[CONTENT] ${error}`);
     console.log(error);
