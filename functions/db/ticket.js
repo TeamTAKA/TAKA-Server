@@ -24,7 +24,22 @@ const getTicketById = async (client, ticketIdx) => {
     `,
     [ticketIdx],
   );
-  return convertSnakeToCamel.keysToCamel(rows[0]);
+
+  const nameOfPlay = rows[0].play_title_kor;
+
+  const { rows: count } = await client.query(
+    `
+    SELECT * FROM ticket
+    WHERE play_title_kor = $1
+      AND is_deleted = FALSE
+    `,
+    [nameOfPlay],
+  );
+
+  let result = rows[0];
+  result.playCount = count.length;
+
+  return convertSnakeToCamel.keysToCamel(result);
 };
 
 const updateTicket = async (client, ticketIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls) => {

@@ -32,7 +32,6 @@ module.exports = {
   READ_ALL_TICKETS_SUCCESS: '전체 티켓 조회 성공',
   NO_TICKET: '존재하지 않는 티켓입니다.',
   SEARCH_TICKETS_SUCCESS: '티켓 검색 성공',
-  NO_RESULT: '검색 결과 없음',
 
   // 서버 내 오류
   INTERNAL_SERVER_ERROR: '서버 내 오류',
