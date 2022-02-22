@@ -21,7 +21,7 @@ const createUser = async (client, id, hashed, salt) => {
       (id, hashed, salt)
       VALUES
       ($1, $2, $3)
-      RETURNING user_idx
+      RETURNING id, hashed, user_idx
     `,
     [id, hashed, salt],
   );

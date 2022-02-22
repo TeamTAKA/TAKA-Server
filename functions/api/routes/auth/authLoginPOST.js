@@ -5,7 +5,7 @@ const responseMessage = require('../../../constants/responseMessage');
 const db = require('../../../db/db');
 const { userDB } = require('../../../db');
 const encrypt = require('../../../lib/crypto');
-//const jwtHandlers = require('../../lib/jwtHandlers');
+const jwtHandlers = require('../../../lib/jwtHandlers');
 
 module.exports = async (req, res) => {
   const { id, password } = req.body;
@@ -28,9 +28,14 @@ module.exports = async (req, res) => {
         return res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, responseMessage.MISS_MATCH_PW));
       }
 
-      //const { id, password } = user[0];
-      //const { accesstoken } = jwtHandlers.sign({ id, password });
-      return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS));
+      const { userId, userHashed, userIdx } = user;
+      const { accesstoken } = jwtHandlers.sign({ userId, userHashed, userIdx });
+      return res.status(statusCode.OK).send(
+        util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, {
+          userIdx: user.userIdx,
+          accesstoken: accesstoken,
+        }),
+      );
     } else {
       return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_USER));
     }
