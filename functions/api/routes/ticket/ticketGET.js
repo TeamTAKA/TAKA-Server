@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
     client = await db.connect(req);
 
     const ticket = await ticketDB.getTicketById(client, ticketIdx);
-    //if (!ticket) return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_TICKET));
+    if (!ticket) return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_TICKET));
 
     res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.READ_ONE_TICKET_SUCCESS, ticket));
   } catch (error) {

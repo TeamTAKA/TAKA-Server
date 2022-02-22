@@ -28,8 +28,7 @@ module.exports = async (req, res) => {
         return res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, responseMessage.MISS_MATCH_PW));
       }
 
-      const { userId, userHashed, userIdx } = user;
-      const { accesstoken } = jwtHandlers.sign({ userId, userHashed, userIdx });
+      const { accesstoken } = jwtHandlers.sign(user);
       return res.status(statusCode.OK).send(
         util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, {
           userIdx: user.userIdx,
