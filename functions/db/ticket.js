@@ -25,6 +25,7 @@ const getTicketById = async (client, ticketIdx) => {
     [ticketIdx],
   );
 
+  if (rows.length === 0) return false;
   const nameOfPlay = rows[0].play_title_kor;
 
   const { rows: count } = await client.query(

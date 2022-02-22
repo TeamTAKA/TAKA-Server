@@ -5,7 +5,7 @@ const responseMessage = require('../../../constants/responseMessage');
 const db = require('../../../db/db');
 const { userDB } = require('../../../db');
 const encrypt = require('../../../lib/crypto');
-//const jwtHandlers = require('../../lib/jwtHandlers');
+const jwtHandlers = require('../../../lib/jwtHandlers');
 
 module.exports = async (req, res) => {
   const { id, password } = req.body;
@@ -27,9 +27,14 @@ module.exports = async (req, res) => {
 
     const { salt, hashed } = await encrypt.encrypt(password);
     const user = await userDB.createUser(client, id, hashed, salt);
-    // const { accesstoken } = jwtHandlers.sign(user[0]);
+    const { accesstoken } = jwtHandlers.sign(user);
 
-    return res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.CREATED_USER, user.userIdx));
+    return res.status(statusCode.OK).send(
+      util.success(statusCode.OK, responseMessage.CREATED_USER, {
+        userIdx: user.userIdx,
+        accesstoken: accesstoken,
+      }),
+    );
   } catch (error) {
     functions.logger.error(`[ERROR] [${req.method.toUpperCase()}] ${req.originalUrl}`, `[CONTENT] ${error}`);
     console.log(error);

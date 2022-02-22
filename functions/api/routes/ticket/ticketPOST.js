@@ -6,15 +6,17 @@ const db = require('../../../db/db');
 const { ticketDB } = require('../../../db');
 
 module.exports = async (req, res) => {
-  const { userIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review } = req.body;
+  if (!req.user[0]) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NO_USER));
+
+  const { titleKor, titleEng, date, time, hall, seat, cast, seller, review } = req.body;
   const imageUrls = req.imageUrls;
-  if (!userIdx) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+  if (!titleKor && !titleEng) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
 
   let client;
 
   try {
     client = await db.connect(req);
-    const ticket = await ticketDB.addTicket(client, userIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls);
+    const ticket = await ticketDB.addTicket(client, req.user[0].userIdx, titleKor, titleEng, date, time, hall, seat, cast, seller, review, imageUrls);
 
     res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.ADD_ONE_TICKET_SUCCESS, ticket.ticketIdx));
   } catch (error) {
