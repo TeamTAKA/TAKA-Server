@@ -6,15 +6,15 @@ const db = require('../../../db/db');
 const { ticketDB } = require('../../../db');
 
 module.exports = async (req, res) => {
-  const { userIdx } = req.params;
-  if (!userIdx) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+  if (!req.user[0]) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, responseMessage.NO_USER));
 
   let client;
 
   try {
     client = await db.connect(req);
 
-    const tickets = await ticketDB.getAllTicketGroupsByuserIdx(client, userIdx);
+    const tickets = await ticketDB.getAllTicketGroupsByuserIdx(client, req.user[0].userIdx);
+    //if (!tickets) return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_TICKET)); 없을 수 있음.
 
     res.status(statusCode.OK).send(util.success(statusCode.OK, responseMessage.READ_ALL_TICKETS_SUCCESS, tickets));
   } catch (error) {
