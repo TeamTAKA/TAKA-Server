@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
       const hashed = await encrypt.encryptWithSalt(password, salt);
       const user = await userDB.logIn(client, id, hashed, salt);
       if (!user) {
-        return res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, responseMessage.MISS_MATCH_PW));
+        return res.status(statusCode.OK).send(util.fail(statusCode.FORBIDDEN, responseMessage.MISS_MATCH_PW));
       }
 
       const { accesstoken } = jwtHandlers.sign(user);
@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
         }),
       );
     } else {
-      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_USER));
+      return res.status(statusCode.OK).send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_USER));
     }
   } catch (error) {
     console.log(`[ERROR] [${req.method.toUpperCase()}] ${req.originalUrl}`, `[CONTENT] ${error}`);
