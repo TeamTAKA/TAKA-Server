@@ -89,7 +89,7 @@ const getAllTicketsByuserIdx = async (client, userIdx) => {
     SELECT play_image, play_title_eng, play_title_kor, play_date FROM ticket
     WHERE user_idx = $1
       AND is_deleted = FALSE
-      ORDER BY ticket_idx
+      ORDER BY play_date DESC
     `,
     [userIdx],
   );
