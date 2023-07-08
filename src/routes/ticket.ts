@@ -5,7 +5,6 @@ import multer from 'multer';
 import upload from "../modules/multer";
 const router = Router();
 
-//checkUser middleware 추가해야 됨
 router.post('/', authUtil.checkToken, upload.single('coverImage'), ticketController.addNewTicket);
 router.get('/', authUtil.checkToken, ticketController.showTicketList);
 router.get('/group', authUtil.checkToken, ticketController.showTicketListbyGroup);

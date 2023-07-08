@@ -19,7 +19,7 @@ const checkAlreadyID = async (req: Request, res: Response) => {
 	try {
 		const isAlreadyUser = await userService.getUserByID(id);
     if(isAlreadyUser) {
-      return res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, resMessage.ALREADY_ID));
+      return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.ALREADY_ID));
     }
 
     res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.NEW_ID));
@@ -52,15 +52,11 @@ const signUp = async (req: Request, res: Response) => {
   try {
     const isAlreadyUser = await userService.getUserByID(id);
     if(isAlreadyUser) {
-      return res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, resMessage.ALREADY_ID));
+      return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.ALREADY_ID));
     }
 
 		const user = await userService.signUp(id, password);
-    const {accessToken, refreshToken} = await jwt.sign(user);
-    res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.SIGNUP_SUCCESS, {
-      accessToken,
-      refreshToken
-    }));
+    res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.SIGNUP_SUCCESS));
   } catch (err) {
     return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, resMessage.NULL_ERROR));
   }
@@ -114,9 +110,37 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
+/*
+ * function name : socialLogin
+ * feature : 카카오 소셜 로그인
+ * req : snsId
+ * res : jwt token
+ */
+
 const socialLogin = async (req: Request, res: Response) => {
-  //이미 id가 DB에 있으면 로그인
-  //없으면 회원가입
+  const { snsId }: { snsId: string; } = req.body;
+
+  if (!snsId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+  }
+
+  try {
+    let user;
+    const isAlreadyUser = await userService.getUserBysnsId(snsId);
+    if(!isAlreadyUser) {
+      user = await userService.signUpBysnsId(snsId);
+    }else{
+      user = await userService.loginBysnsId(snsId);
+    }
+    
+    const {accessToken, refreshToken} = await jwt.sign(user);
+    res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.LOGIN_SUCCESS, {
+      accessToken,
+      refreshToken
+    }));
+  } catch (err) {
+    return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, resMessage.NULL_ERROR));
+  }
 };
 
 export default {

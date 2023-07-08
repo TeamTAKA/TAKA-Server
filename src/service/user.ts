@@ -19,6 +19,24 @@ const getUserByID = async (id: String) => {
   }
 };
 
+const getUserBysnsId = async (snsId: String) => {
+  const query = `SELECT snsId FROM User WHERE snsId = '${snsId}'`;
+
+  try {
+    const result = await pool.queryParam(query) as Object[];
+    let resultInfo;
+    if(!result){
+      resultInfo = 0;
+    }else{
+      resultInfo = result[0];
+    }
+    return resultInfo;
+  } catch (err) {
+    console.log('getUserBysnsId ERROR : ', err);
+    throw err;
+  }
+};
+
 type hashedInfo = {
   salt: string;
   hashed: string;
@@ -45,6 +63,24 @@ const signUp = async (id: string, password: string) => {
   }
 };
 
+const signUpBysnsId = async (snsId: String) => {
+  const fields = 'snsId';
+  const questions = `?`;
+  const values = [snsId];
+  const query = `INSERT INTO User (${fields}) VALUES (${questions})`;
+
+  try {
+    const result: any = await pool.queryParamArr(query, values);
+    const insertId = result.insertId;
+    const getQuery = `SELECT user_idx AS idx, snsId AS id FROM User WHERE user_idx = ${insertId}`;
+    const userData = await pool.queryParam(getQuery) as Object[];
+    return userData[0];
+  } catch (err) {
+    console.log('signUpBysnsId ERROR : ', err);
+    throw err;
+  }
+};
+
 
 const login = async (id: string, password: string, salt: string) => {
   const inputPassword = await encrypt.encryptWithSalt(password, salt);
@@ -59,8 +95,23 @@ const login = async (id: string, password: string, salt: string) => {
   }
 };
 
+const loginBysnsId = async (snsId: String) => {
+  const query = `SELECT user_idx AS idx, snsId AS id FROM User WHERE snsId = '${snsId}'`;
+
+  try {
+    const result = await pool.queryParam(query) as Object[];
+    return result[0];
+  } catch (err) {
+    console.log('loginBysnsId ERROR : ', err);
+    throw err;
+  }
+};
+
 export default {
   getUserByID,
+  getUserBysnsId,
   signUp,
-  login
+  signUpBysnsId,
+  login,
+  loginBysnsId
 };
