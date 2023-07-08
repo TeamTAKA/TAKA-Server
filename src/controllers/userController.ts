@@ -101,6 +101,8 @@ const login = async (req: Request, res: Response) => {
     }
 
     const {accessToken, refreshToken} = await jwt.sign(user);
+    const refreshData = await userService.updateRefreshToken(user, refreshToken);
+    
     res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.LOGIN_SUCCESS, {
       accessToken,
       refreshToken

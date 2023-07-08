@@ -107,11 +107,43 @@ const loginBysnsId = async (snsId: String) => {
   }
 };
 
+type userInfo = {
+  idx: Number;
+  id: String;
+}
+
+const updateRefreshToken = async (user:Object, refreshToken:String) => {
+  const userData = <userInfo>user;
+  const query = `UPDATE User SET refresh_token = '${refreshToken}' WHERE user_idx = ${userData.idx}`;
+
+  try {
+    const result = await pool.queryParam(query);
+    return result;
+  } catch (err) {
+    console.log('updateRefreshToken ERROR : ', err);
+    throw err;
+  }
+};
+
+const checkRefreshtoeknByIdx = async (idx: Number) => {
+  const query = `SELECT refresh_token AS refreshToken FROM User WHERE user_idx = '${idx}'`;
+
+  try {
+    const result = await pool.queryParam(query) as Object[];
+    return result[0];
+  } catch (err) {
+    console.log('checkRefreshtoeknByIdx ERROR : ', err);
+    throw err;
+  }
+};
+
 export default {
   getUserByID,
   getUserBysnsId,
   signUp,
   signUpBysnsId,
   login,
-  loginBysnsId
+  loginBysnsId,
+  updateRefreshToken,
+  checkRefreshtoeknByIdx
 };
