@@ -34,11 +34,11 @@ const addNewTicket = async (req: Request, res: Response) => {
 		review: String;
   } = req.body;
 
-	const coverImage = (req.file as Express.MulterS3.File).location;
-
-	if (!coverImage || !titleKor) {
+	if (!req.file || !titleKor) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
   }
+
+	const coverImage = (req.file as Express.MulterS3.File).location;
 
 	try {
 		const ticketIdx = await ticketService.addNewTicket(userIDX, coverImage, titleKor, titleEng, date, time, hall, seat, cast, seller, review);
