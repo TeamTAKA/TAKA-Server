@@ -4,7 +4,7 @@ import authController from '../controllers/authController';
 import authUtil from '../middlewares/authUtil';
 const router = Router();
 
-router.get('/checkId/:id', userController.checkAlreadyID);
+router.get('/checkid/:id', userController.checkAlreadyID);
 router.post('/signup', userController.signUp);
 router.post('/login', userController.login);
 router.post('/social', userController.socialLogin);

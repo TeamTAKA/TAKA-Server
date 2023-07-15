@@ -4,8 +4,6 @@ import statusCode from '../modules/statusCode';
 import resMessage from '../modules/responseMessage';
 import ticketService from '../service/ticket';
 
-const user = 1; //checkUser 작업하면 authToken으로 userIDX 넘겨받기
-
 /*
  * 티켓 추가
  */
@@ -38,7 +36,7 @@ const addNewTicket = async (req: Request, res: Response) => {
 
 	const coverImage = (req.file as Express.MulterS3.File).location;
 
-	if (!titleKor && !titleEng) {
+	if (!coverImage || !titleKor) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
   }
 
