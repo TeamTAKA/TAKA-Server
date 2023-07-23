@@ -34,7 +34,7 @@ const addNewTicket = async (req: Request, res: Response) => {
 		review: String;
   } = req.body;
 
-	if (!req.file || !titleKor) {
+	if (!req.file || !titleKor || !date) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
   }
 
@@ -108,12 +108,13 @@ const showTicketInfo = async (req: Request, res: Response) => {
 	
 	const user = req.decoded as userInfo;
 	if (!user) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+	const userIDX = user.idx;
 
 	const { ticketIDX }: { ticketIDX?: Number } = req.params;
 	if (!ticketIDX) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
 
 	try {
-		const detailInfo = await ticketService.showTicketInfo(ticketIDX);
+		const detailInfo = await ticketService.showTicketInfo(userIDX, ticketIDX);
     res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.READ_TICKET_SUCCESS, detailInfo as Object));
   } catch (err) {
     return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, resMessage.NULL_ERROR));
@@ -128,6 +129,7 @@ const editTicketInfo = async (req: Request, res: Response) => {
 
 	const user = req.decoded as userInfo;
 	if (!user) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+	const userIDX = user.idx;
 
 	const { ticketIDX }: { ticketIDX?: Number } = req.params;
 	if (!ticketIDX) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
@@ -154,10 +156,14 @@ const editTicketInfo = async (req: Request, res: Response) => {
 		review: String;
   } = req.body;
 
+	if (!req.file) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+  }
+
 	const coverImage = (req.file as Express.MulterS3.File).location;
 
 	try {
-		const updatedTicket = await ticketService.editTicketInfo(ticketIDX, coverImage, titleKor, titleEng, date, time, hall, seat, cast, seller, review);
+		const updatedTicket = await ticketService.editTicketInfo(userIDX, ticketIDX, coverImage, titleKor, titleEng, date, time, hall, seat, cast, seller, review);
     res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.UPDATE_TICKET_SUCCESS));
   } catch (err) {
     return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, resMessage.NULL_ERROR));
@@ -172,12 +178,13 @@ const deleteTicket = async (req: Request, res: Response) => {
 	
 	const user = req.decoded as userInfo;
 	if (!user) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+	const userIDX = user.idx;
 
 	const { ticketIDX }: { ticketIDX?: Number } = req.params;
 	if (!ticketIDX) return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
 
 	try {
-		const deletedTicket = await ticketService.deleteTicket(ticketIDX);
+		const deletedTicket = await ticketService.deleteTicket(userIDX, ticketIDX);
     res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.DELETE_TICKET_SUCCESS));
   } catch (err) {
     return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, resMessage.NULL_ERROR));
