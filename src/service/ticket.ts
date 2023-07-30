@@ -19,6 +19,7 @@ const addNewTicket = async (user:Number, coverImage: String, titleKor: String, t
 
 // type, interface 등 개념 살펴보고 분리할 수 있는 방법 찾아보기
 type ticketInfo = {
+  ticketIdx: Number;
   titleKor: String;
   titleEng: String;
   date: String;
@@ -32,18 +33,26 @@ type ticketInfo = {
   count: Number;
 }
 
-type countInfo = {
-  countNum: Number;
+type ticketIdxInfo = {
+  ticketIdx: Number;
 }
 
 const showTicketInfo = async (userIDX: Number, ticketIDX: Number) => {
   const query = `SELECT ticket_idx AS ticketIdx, title_kor AS titleKor, title_eng AS titleEng, date, time, hall, seat, cast, seller, review, cover_img AS coverImage FROM Ticket WHERE ticket_idx = ${ticketIDX} AND user_idx = ${userIDX}`;
 
   try {
+    //해당 티켓의 정보
     let result = <ticketInfo[]>await pool.queryParam(query);
-    const queryForCount = `SELECT COUNT(*) AS countNum FROM Ticket WHERE title_kor = '${result[0].titleKor}'`;
-    const resultForCount = <countInfo[]>await pool.queryParam(queryForCount);
-    result[0].count = resultForCount[0].countNum;
+    
+    //관극 횟수 count
+    const queryForCount = `SELECT ticket_idx AS ticketIdx FROM Ticket WHERE title_kor = '${result[0].titleKor}'`;
+    const example = <ticketIdxInfo[]>await pool.queryParam(queryForCount);
+    let array : any = [];
+    example.forEach((item) => {
+      array.push(item['ticketIdx']);
+    })
+    result[0].count = array.indexOf(result[0]['ticketIdx'])+1;
+
     return result[0];
   } catch (err) {
     console.log('showTicketInfo ERROR : ', err);
@@ -76,7 +85,7 @@ const deleteTicket = async (userIDX: Number, ticketIDX: Number) => {
 };
 
 const showTicketList = async (userIDX?: Number) => {
-  const query = `SELECT ticket_idx AS ticketIdx, cover_img AS coverImage, title_eng AS titleEng, title_kor AS titleKor, date FROM Ticket WHERE user_idx = ${userIDX} ORDER BY date DESC`;
+  const query = `SELECT ticket_idx AS ticketIdx, cover_img AS coverImage, title_eng AS titleEng, title_kor AS titleKor, date FROM Ticket WHERE user_idx = ${userIDX} ORDER BY date DESC, time DESC`;
 
   try {
     const result = await pool.queryParam(query);
@@ -107,7 +116,7 @@ type resultList = {
 }
 
 const showTicketListbyGroup = async (userIDX?: Number) => {
-  const query = `SELECT ticket_idx AS ticketIdx, cover_img AS coverImage, title_kor AS titleKor, date FROM Ticket WHERE user_idx = ${userIDX} ORDER BY title_kor, date ASC, time ASC`;
+  const query = `SELECT ticket_idx AS ticketIdx, cover_img AS coverImage, title_kor AS titleKor, date FROM Ticket WHERE user_idx = ${userIDX} ORDER BY title_kor, date DESC, time DESC`;
 
   try {
     const existingRows = await pool.queryParam(query) as ticketListOrderByTitleKor[];
