@@ -45,7 +45,7 @@ const showTicketInfo = async (userIDX: Number, ticketIDX: Number) => {
     let result = <ticketInfo[]>await pool.queryParam(query);
     
     //관극 횟수 count
-    const queryForCount = `SELECT ticket_idx AS ticketIdx FROM Ticket WHERE title_kor = '${result[0].titleKor}'`;
+    const queryForCount = `SELECT ticket_idx AS ticketIdx FROM Ticket WHERE title_kor = '${result[0].titleKor}' ORDER BY date DESC, time DESC`;
     const example = <ticketIdxInfo[]>await pool.queryParam(queryForCount);
     let array : any = [];
     example.forEach((item) => {
@@ -174,7 +174,7 @@ const searchbyKeyword = async (userIDX?: Number, keyword?:String) => {
                     WHEN title_kor = '%${keyword}%' THEN 2
                     WHEN title_kor = '%${keyword}' THEN 3
                     ELSE 4 END,
-                  date ASC, time ASC`;
+                  date DESC, time DESC`;
 
   try {
     const existingRows = await pool.queryParam(query) as ticketListOrderByTitleKor[];
