@@ -19,6 +19,7 @@ const addNewTicket = async (user:Number, coverImage: String, titleKor: String, t
 
 // type, interface 등 개념 살펴보고 분리할 수 있는 방법 찾아보기
 type ticketInfo = {
+  ticketIdx: Number;
   titleKor: String;
   titleEng: String;
   date: String;
@@ -32,18 +33,26 @@ type ticketInfo = {
   count: Number;
 }
 
-type countInfo = {
-  countNum: Number;
+type ticketIdxInfo = {
+  ticketIdx: Number;
 }
 
-const showTicketInfo = async (ticketIDX?: Number) => {
-  const query = `SELECT title_kor AS titleKor, title_eng AS titleEng, date, time, hall, seat, cast, seller, review, cover_img AS coverImage FROM Ticket WHERE ticket_idx = ${ticketIDX}`;
+const showTicketInfo = async (userIDX: Number, ticketIDX: Number) => {
+  const query = `SELECT ticket_idx AS ticketIdx, title_kor AS titleKor, title_eng AS titleEng, date, time, hall, seat, cast, seller, review, cover_img AS coverImage FROM Ticket WHERE ticket_idx = ${ticketIDX} AND user_idx = ${userIDX}`;
 
   try {
+    //해당 티켓의 정보
     let result = <ticketInfo[]>await pool.queryParam(query);
-    const queryForCount = `SELECT COUNT(*) AS countNum FROM Ticket WHERE title_kor = '${result[0].titleKor}'`;
-    const resultForCount = <countInfo[]>await pool.queryParam(queryForCount);
-    result[0].count = resultForCount[0].countNum;
+    
+    //관극 횟수 count
+    const queryForCount = `SELECT ticket_idx AS ticketIdx FROM Ticket WHERE title_kor = '${result[0].titleKor}' ORDER BY date DESC, time DESC`;
+    const example = <ticketIdxInfo[]>await pool.queryParam(queryForCount);
+    let array : any = [];
+    example.forEach((item) => {
+      array.push(item['ticketIdx']);
+    })
+    result[0].count = array.indexOf(result[0]['ticketIdx'])+1;
+
     return result[0];
   } catch (err) {
     console.log('showTicketInfo ERROR : ', err);
@@ -51,8 +60,8 @@ const showTicketInfo = async (ticketIDX?: Number) => {
   }
 };
 
-const editTicketInfo = async (ticketIdx: Number, coverImage: String, titleKor: String, titleEng: String, date: String, time: String, hall: String, seat: String, cast: String, seller: String, review: String) => {
-  const query = `UPDATE Ticket SET cover_img = "${coverImage}", title_kor = "${titleKor}", title_eng = "${titleEng}", date = "${date}", time = "${time}", hall = "${hall}", seat = "${seat}", cast = "${cast}", seller = "${seller}", review = "${review}" WHERE ticket_idx = "${ticketIdx}"`;
+const editTicketInfo = async (userIDX:Number, ticketIDX: Number, coverImage: String, titleKor: String, titleEng: String, date: String, time: String, hall: String, seat: String, cast: String, seller: String, review: String) => {
+  const query = `UPDATE Ticket SET cover_img = "${coverImage}", title_kor = "${titleKor}", title_eng = "${titleEng}", date = "${date}", time = "${time}", hall = "${hall}", seat = "${seat}", cast = "${cast}", seller = "${seller}", review = "${review}" WHERE ticket_idx = ${ticketIDX} AND user_idx = ${userIDX}`;
 
   try{
     const result = await pool.queryParam(query);
@@ -63,8 +72,8 @@ const editTicketInfo = async (ticketIdx: Number, coverImage: String, titleKor: S
   }
 };
 
-const deleteTicket = async (ticketIDX: Number) => {
-  const query = `DELETE FROM Ticket WHERE ticket_idx = "${ticketIDX}"`;
+const deleteTicket = async (userIDX: Number, ticketIDX: Number) => {
+  const query = `DELETE FROM Ticket WHERE ticket_idx = ${ticketIDX} AND user_idx = ${userIDX}`;
 
   try{
     const result = await pool.queryParam(query);
@@ -75,8 +84,8 @@ const deleteTicket = async (ticketIDX: Number) => {
   }
 };
 
-const showTicketList = async (user?: Number) => {
-  const query = `SELECT ticket_idx AS ticketIdx, cover_img AS coverImage, title_eng AS titleEng, title_kor AS titleKor, date FROM Ticket WHERE user_idx = ${user}`;
+const showTicketList = async (userIDX?: Number) => {
+  const query = `SELECT ticket_idx AS ticketIdx, cover_img AS coverImage, title_eng AS titleEng, title_kor AS titleKor, date FROM Ticket WHERE user_idx = ${userIDX} ORDER BY date DESC, time DESC`;
 
   try {
     const result = await pool.queryParam(query);
@@ -106,8 +115,8 @@ type resultList = {
   ticketList: ticketListExceptTitleKor[];
 }
 
-const showTicketListbyGroup = async (user?: Number) => {
-  const query = `SELECT ticket_idx AS ticketIdx, cover_img AS coverImage, title_kor AS titleKor, date FROM Ticket WHERE user_idx = ${user} ORDER BY title_kor`;
+const showTicketListbyGroup = async (userIDX?: Number) => {
+  const query = `SELECT ticket_idx AS ticketIdx, cover_img AS coverImage, title_kor AS titleKor, date FROM Ticket WHERE user_idx = ${userIDX} ORDER BY title_kor, date DESC, time DESC`;
 
   try {
     const existingRows = await pool.queryParam(query) as ticketListOrderByTitleKor[];
@@ -151,20 +160,21 @@ const showTicketListbyGroup = async (user?: Number) => {
   }
 };
 
-const searchbyKeyword = async (user?: Number, keyword?:String) => {
+const searchbyKeyword = async (userIDX?: Number, keyword?:String) => {
   const query = `SELECT
                   ticket_idx AS ticketIdx,
                   title_kor AS titleKor,
                   cover_img AS coverImage,
                   date FROM Ticket
-                WHERE user_idx = ${user} AND title_kor LIKE '%${keyword}%'
+                WHERE user_idx = ${userIDX} AND title_kor LIKE '%${keyword}%'
                 ORDER BY
                   CASE
                     WHEN title_kor = '${keyword}' THEN 0
                     WHEN title_kor = '${keyword}%' THEN 1
                     WHEN title_kor = '%${keyword}%' THEN 2
                     WHEN title_kor = '%${keyword}' THEN 3
-                    ELSE 4 END`;
+                    ELSE 4 END,
+                  date DESC, time DESC`;
 
   try {
     const existingRows = await pool.queryParam(query) as ticketListOrderByTitleKor[];
